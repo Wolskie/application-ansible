@@ -33,6 +33,16 @@ defaults
     timeout check           10s
     maxconn                 3000
 
+frontend fe_mc_vip
+    bind *:25565
+    mode tcp
+    default_backend bk_mc
+
+backend bk_mc
+    mode tcp
+    balance roundrobin
+    server server1 172.16.17.164:25565
+
 frontend fe_ssl_vip
     bind *:443
     mode tcp
