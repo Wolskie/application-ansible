@@ -1,0 +1,26 @@
+---
+
+- name: remove motd
+  shell: "rm /etc/motd.d/{cockpit,insights-client} || true"
+  changed_when: false
+
+- name: deploy motd
+  copy:
+    dest: "/etc/motd.d/hahl"
+    content: |+
+    
+      oooo                  oooo        oooo  
+      `888                  `888        `888  
+       888 .oo.    .oooo.    888 .oo.    888  
+       888P"Y88b  `P  )88b   888P"Y88b   888  
+       888   888   .oP"888   888   888   888  
+       888   888  d8(  888   888   888   888  
+      o888o o888o `Y888""8o o888o o888o o888o 
+
+- name: deploy bash hardening
+  template:
+    src: "../templates/security/99-security.sh.j2"
+    dest: "/etc/profile.d/99-security.sh"
+    mode: "0755"
+    owner: "root"
+    group: "root"

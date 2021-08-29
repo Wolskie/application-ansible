@@ -17,6 +17,9 @@
         name: haproxy
         state: restarted
   tasks:
+
+    - include_tasks: "common/security.yaml"
+
     - name: install keepalived and haproxy
       package:
         name:
