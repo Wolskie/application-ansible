@@ -33,29 +33,105 @@ defaults
     timeout check           10s
     maxconn                 3000
 
-frontend fe_mc_vip
+listen stats
+    bind :9000
+    mode http
+    stats enable
+    stats uri /
+
+##
+# Minecraft
+#
+frontend fe_minecraft
     bind *:25565
     mode tcp
-    default_backend bk_mc
+    default_backend be_minecraft
 
-backend bk_mc
+backend be_minecraft
     mode tcp
     balance roundrobin
     server server1 172.16.17.164:25565
 
-frontend fe_ssl_vip
+##
+# Kubernetes API 6443
+#
+frontend fe_k8s_api
+    bind *:6443
+    mode tcp
+
+    tcp-request inspect-delay 5s
+    tcp-request content accept if { req_ssl_hello_type 1 }
+
+    use_backend be_k8s_api if { req_ssl_sni -i api.k8s.hahl.id.a }
+
+##
+# HTTP traffic
+#
+frontend fe_http
+    bind *:80
+    mode http
+
+    acl app_cloud       hdr(host) -i cloud.hahl.id.au 
+    acl app_k8s_ingress hdr(host) -m end .apps.k8s.hahl.id.au
+
+    # Redirect cloud to https
+    redirect scheme https code 301 if app_cloud
+
+    # Default backend to 
+    use_backend be_http_k8s_ingress if app_k8s_ingress 
+
+##
+# HTTPS Traffic
+#
+frontend fe_https
     bind *:443
     mode tcp
 
     tcp-request inspect-delay 5s
     tcp-request content accept if { req_ssl_hello_type 1 }
-  
-    acl app_cloud req_ssl_sni -i cloud.hahl.id.au
-    use_backend bk_ssl_cloud if app_cloud
 
-backend bk_ssl_cloud
+    use_backend be_https_cloud       if { req_ssl_sni -i cloud.hahl.id.au }
+    use_backend be_https_k8s_ingress if { req.ssl_sni -m end .apps.k8s.hahl.id.au }
+
+##
+# cloud.hahl.id.au
+#
+backend be_https_cloud
     mode tcp
     balance roundrobin
-    server server1 172.16.17.182:443 check
+    server cloud_1 172.16.17.182:443 check
 
+##
+# api.k8s.hahl.id.au
+#
+backend be_k8s_api
+    mode tcp
+    balance roundrobin
+    server master1 172.16.17.100:6443 check
+    server master2 172.16.17.101:6443 check
+    server master3 172.16.17.102:6443 check
 
+##
+# *.apps.k8s.hahl.id.au
+#
+backend be_https_k8s_ingress
+    mode tcp
+    balance roundrobin
+    server master1 172.16.17.100:443 check
+    server master2 172.16.17.101:443 check
+    server master3 172.16.17.102:443 check
+
+    server worker1 172.16.17.100:443 check
+    server worker2 172.16.17.101:443 check
+    server worker3 172.16.17.102:443 check
+
+backend be_http_k8s_ingress
+    mode http
+    balance roundrobin
+    server master1 172.16.17.100:80 check
+    server master2 172.16.17.101:80 check
+    server master3 172.16.17.102:80 check
+
+    server worker1 172.16.17.100:80 check
+    server worker2 172.16.17.101:80 check
+    server worker3 172.16.17.102:80 check

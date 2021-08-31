@@ -18,6 +18,7 @@
         state: restarted
   tasks:
 
+    - include_tasks: "common/subscriptions.yaml"
     - include_tasks: "common/security.yaml"
 
     - name: install keepalived and haproxy
