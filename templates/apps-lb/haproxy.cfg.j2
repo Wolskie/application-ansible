@@ -46,11 +46,23 @@ frontend fe_minecraft
     bind *:25565
     mode tcp
     default_backend be_minecraft
-
 backend be_minecraft
     mode tcp
     balance roundrobin
     server server1 172.16.17.164:25565
+
+##
+# k0s-api
+#
+frontend fe_rke2_join
+    bind *:9345
+    mode tcp
+    default_backend be_rke2_join
+backend be_rke2_join
+    mode tcp
+    server master1 172.16.17.100:9443 check check-ssl verify none
+    server master2 172.16.17.101:9443 check check-ssl verify none
+    server master3 172.16.17.102:9443 check check-ssl verify none
 
 ##
 # Kubernetes API 6443
@@ -58,11 +70,12 @@ backend be_minecraft
 frontend fe_k8s_api
     bind *:6443
     mode tcp
-
-    tcp-request inspect-delay 5s
-    tcp-request content accept if { req_ssl_hello_type 1 }
-
-    use_backend be_k8s_api if { req_ssl_sni -i api.k8s.hahl.id.a }
+    default_backend be_k8s_api
+backend be_k8s_api
+    mode tcp
+    server master1 172.16.17.100:6443 check-ssl verify none
+    server master2 172.16.17.101:6443 check-ssl verify none
+    server master3 172.16.17.102:6443 check-ssl verify none
 
 ##
 # HTTP traffic
@@ -100,16 +113,6 @@ backend be_https_cloud
     mode tcp
     balance roundrobin
     server cloud_1 172.16.17.182:443 check
-
-##
-# api.k8s.hahl.id.au
-#
-backend be_k8s_api
-    mode tcp
-    balance roundrobin
-    server master1 172.16.17.100:6443 check
-    server master2 172.16.17.101:6443 check
-    server master3 172.16.17.102:6443 check
 
 ##
 # *.apps.k8s.hahl.id.au
