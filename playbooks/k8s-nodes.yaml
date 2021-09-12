@@ -8,6 +8,10 @@
     - include_tasks: "common/subscriptions.yaml"
     - include_tasks: "common/security.yaml"
 
+    - yum:
+        name: ipa-client
+        state: installed
+
     - copy:
         content: |
           net.bridge.bridge-nf-call-ip6tables = 1

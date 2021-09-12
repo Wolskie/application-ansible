@@ -49,20 +49,8 @@ frontend fe_minecraft
 backend be_minecraft
     mode tcp
     balance roundrobin
-    server server1 172.16.17.164:25565
+    server server1 172.16.17.164:25565 check
 
-##
-# k0s-api
-#
-frontend fe_rke2_join
-    bind *:9345
-    mode tcp
-    default_backend be_rke2_join
-backend be_rke2_join
-    mode tcp
-    server master1 172.16.17.100:9443 check check-ssl verify none
-    server master2 172.16.17.101:9443 check check-ssl verify none
-    server master3 172.16.17.102:9443 check check-ssl verify none
 
 ##
 # Kubernetes API 6443
@@ -73,9 +61,9 @@ frontend fe_k8s_api
     default_backend be_k8s_api
 backend be_k8s_api
     mode tcp
-    server master1 172.16.17.100:6443 check-ssl verify none
-    server master2 172.16.17.101:6443 check-ssl verify none
-    server master3 172.16.17.102:6443 check-ssl verify none
+    server master1 172.16.17.100:6443 check
+    server master2 172.16.17.101:6443 check
+    server master3 172.16.17.102:6443 check
 
 ##
 # HTTP traffic
@@ -85,10 +73,12 @@ frontend fe_http
     mode http
 
     acl app_cloud       hdr(host) -i cloud.hahl.id.au 
+    acl app_auth        hdr(host) -i auth.hahl.id.au 
     acl app_k8s_ingress hdr(host) -m end .apps.k8s.hahl.id.au
 
-    # Redirect cloud to https
+    # Redirect cloud/auth to https
     redirect scheme https code 301 if app_cloud
+    redirect scheme https code 301 if app_auth
 
     # Default backend to 
     use_backend be_http_k8s_ingress if app_k8s_ingress 
@@ -103,8 +93,10 @@ frontend fe_https
     tcp-request inspect-delay 5s
     tcp-request content accept if { req_ssl_hello_type 1 }
 
-    use_backend be_https_cloud       if { req_ssl_sni -i cloud.hahl.id.au }
-    use_backend be_https_k8s_ingress if { req.ssl_sni -m end .apps.k8s.hahl.id.au }
+    use_backend be_https_cloud        if { req_ssl_sni -i cloud.hahl.id.au }
+    use_backend be_https_k8s_ingress  if { req_ssl_sni -i auth.hahl.id.au }
+    use_backend be_https_k8s_ingress  if { req_ssl_sni -i login.k8s.hahl.id.au }
+    use_backend be_https_k8s_ingress  if { req.ssl_sni -m end .apps.k8s.hahl.id.au }
 
 ##
 # cloud.hahl.id.au
@@ -120,21 +112,13 @@ backend be_https_cloud
 backend be_https_k8s_ingress
     mode tcp
     balance roundrobin
-    server master1 172.16.17.100:443 check
-    server master2 172.16.17.101:443 check
-    server master3 172.16.17.102:443 check
-
-    server worker1 172.16.17.100:443 check
-    server worker2 172.16.17.101:443 check
-    server worker3 172.16.17.102:443 check
+    server worker1 172.16.17.103:443 check
+    server worker2 172.16.17.104:443 check
+    server worker3 172.16.17.105:443 check
 
 backend be_http_k8s_ingress
     mode http
     balance roundrobin
-    server master1 172.16.17.100:80 check
-    server master2 172.16.17.101:80 check
-    server master3 172.16.17.102:80 check
-
-    server worker1 172.16.17.100:80 check
-    server worker2 172.16.17.101:80 check
-    server worker3 172.16.17.102:80 check
+    server worker1 172.16.17.103:80 check
+    server worker2 172.16.17.104:80 check
+    server worker3 172.16.17.105:80 check
