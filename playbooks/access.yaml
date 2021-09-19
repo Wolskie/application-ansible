@@ -1,0 +1,15 @@
+---
+- hosts: access
+  vars: {}
+  tasks:
+
+    - include_tasks: "common/subscriptions.yaml"
+    - include_tasks: "common/security.yaml"
+
+    - yum:
+        name:
+          - ipa-client
+          - nginx
+          - openvpn
+        state: installed
+    

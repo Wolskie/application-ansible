@@ -73,12 +73,16 @@ frontend fe_http
     mode http
 
     acl app_cloud       hdr(host) -i cloud.hahl.id.au 
+    acl app_element     hdr(host) -i element.hahl.id.au 
+    acl app_matrix      hdr(host) -i matrix.hahl.id.au 
     acl app_auth        hdr(host) -i auth.hahl.id.au 
     acl app_k8s_ingress hdr(host) -m end .apps.k8s.hahl.id.au
 
     # Redirect cloud/auth to https
     redirect scheme https code 301 if app_cloud
     redirect scheme https code 301 if app_auth
+    redirect scheme https code 301 if app_element
+    redirect scheme https code 301 if app_matrix
 
     # Default backend to 
     use_backend be_http_k8s_ingress if app_k8s_ingress 
@@ -93,9 +97,15 @@ frontend fe_https
     tcp-request inspect-delay 5s
     tcp-request content accept if { req_ssl_hello_type 1 }
 
+    # Cloud
     use_backend be_https_cloud        if { req_ssl_sni -i cloud.hahl.id.au }
+
+    # Matrix and element are the same backend.
+    use_backend be_https_matrix       if { req_ssl_sni -i matrix.hahl.id.au }
+    use_backend be_https_matrix       if { req_ssl_sni -i element.hahl.id.au }
+
+    # Default to kubernetes
     use_backend be_https_k8s_ingress  if { req_ssl_sni -i auth.hahl.id.au }
-    use_backend be_https_k8s_ingress  if { req_ssl_sni -i login.k8s.hahl.id.au }
     use_backend be_https_k8s_ingress  if { req.ssl_sni -m end .apps.k8s.hahl.id.au }
 
 ##
@@ -105,6 +115,15 @@ backend be_https_cloud
     mode tcp
     balance roundrobin
     server cloud_1 172.16.17.182:443 check
+
+##
+# * matrix.hahl.id.au
+# * element.hahl.id.au
+#
+backend be_https_matrix
+    mode tcp
+    balance roundrobin
+    server matrix_1 172.16.17.166:443 check
 
 ##
 # *.apps.k8s.hahl.id.au
