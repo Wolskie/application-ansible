@@ -1,0 +1,11 @@
+---
+- hosts: idm
+  tasks:
+
+    - include_tasks: "common/subscriptions.yaml"
+    - include_tasks: "common/security.yaml"
+
+    - yum:
+        state: installed
+        name:
+          - ipa-server
