@@ -5,6 +5,7 @@
 
     - include_tasks: "common/subscriptions.yaml"
     - include_tasks: "common/security.yaml"
+    - include_tasks: "common/logging.yaml"
 
     - yum:
         name: ipa-client

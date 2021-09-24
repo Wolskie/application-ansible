@@ -16,10 +16,16 @@
       service:
         name: haproxy
         state: restarted
+
+    - name: restart rsyslog
+      service:
+        name: rsyslog
+        state: restarted
   tasks:
 
     - include_tasks: "common/subscriptions.yaml"
     - include_tasks: "common/security.yaml"
+    - include_tasks: "common/logging.yaml"
 
     - name: install keepalived and haproxy
       package:
@@ -39,3 +45,15 @@
         src: ../templates/apps-lb/keepalived.conf.j2
         dest: /etc/keepalived/keepalived.conf
       notify: restart keepalived
+
+    - name: "deploy rsyslog file"
+      copy:
+        content: |
+          module(load="imudp")
+          input(type="imudp" port="514" Address="127.0.0.1")
+          :programname, startswith, "haproxy" {
+            /var/log/haproxy.log
+            stop
+          }
+        dest: /etc/rsyslog.d/99-haproxy.conf
+      notify: restart rsyslog

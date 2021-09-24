@@ -9,7 +9,9 @@
     - include_tasks: "common/security.yaml"
 
     - yum:
-        name: ipa-client
+        name:
+          - ipa-client
+          - lvm2
         state: installed
 
     - copy:
