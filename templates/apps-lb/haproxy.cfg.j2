@@ -53,6 +53,26 @@ backend be_minecraft
 
 
 ##
+# OpenShift Machine Config
+#
+frontend fe_infra_mc
+    bind *:22623
+    mode tcp
+
+    tcp-request inspect-delay 5s
+    acl network_allowed src 172.16.17.0/24
+    tcp-request connection reject if !network_allowed
+
+    default_backend be_infra_mc
+backend be_infra_mc
+    mode tcp
+    balance leastconn
+    server bootstrap01 172.16.17.126:22623 check
+    server master01    172.16.17.100:22623 check
+    server master02    172.16.17.101:22623 check
+    server master03    172.16.17.102:22623 check
+
+##
 # Kubernetes API 6443
 # OpenShift  API 6443
 #
@@ -63,22 +83,23 @@ frontend fe_k8s_api
     tcp-request inspect-delay 5s
     tcp-request content accept if { req_ssl_hello_type 1 }
 
-    use_backend be_k8s_api  if { req.ssl_sni -m end .k8s.hahl.id.au   }
+    use_backend be_ocp_api    if { req.ssl_sni -m end .ocp.hahl.id.au   }
     use_backend be_infra_api  if { req.ssl_sni -m end .infra.hahl.id.au }
 
-# OpenShift 6443 Backend
+# Infra 6443 Backend
 backend be_infra_api
+    mode tcp
+    server syd-boostrap-01 172.16.17.126:6443 check
+    server syd-master-01   172.16.17.100:6443 check
+    server syd-master-02   172.16.17.101:6443 check
+    server syd-master-03   172.16.17.102:6443 check
+
+# OCP 6443 Backend
+backend be_ocp_api
     mode tcp
     server master01 172.16.17.106:6443 check
     server master02 172.16.17.107:6443 check
     server master03 172.16.17.108:6443 check
-
-# Kubernetes 6443 Backend
-backend be_k8s_api
-    mode tcp
-    server master1 172.16.17.100:6443 check
-    server master2 172.16.17.101:6443 check
-    server master3 172.16.17.102:6443 check
 
 ##
 # HTTP traffic
@@ -90,19 +111,22 @@ frontend fe_http
     acl app_cloud       hdr(host) -i cloud.hahl.id.au 
     acl app_element     hdr(host) -i element.hahl.id.au 
     acl app_matrix      hdr(host) -i matrix.hahl.id.au 
-    acl app_auth        hdr(host) -i auth.hahl.id.au 
+    acl app_auth        hdr(host) -i auth.hahl.id.au
+    acl app_gitea       hdr(host) -i git.hahl.id.au
+
 
     acl app_infra_ingress hdr(host) -m end .apps.infra.hahl.id.au
-    acl app_k8s_ingress   hdr(host) -m end .apps.k8s.hahl.id.au
+    acl app_ocp_ingress   hdr(host) -m end .apps.ocp.hahl.id.au
 
     # Redirect cloud/auth to https
     redirect scheme https code 301 if app_cloud
     redirect scheme https code 301 if app_auth
     redirect scheme https code 301 if app_element
     redirect scheme https code 301 if app_matrix
+    redirect scheme https code 301 if app_gitea
 
     # Default backend to 
-    use_backend be_http_k8s_ingress if app_k8s_ingress 
+    use_backend be_http_ocp_ingress   if app_ocp_ingress 
     use_backend be_http_infra_ingress if app_infra_ingress 
 
 ##
@@ -122,11 +146,12 @@ frontend fe_https
     use_backend be_https_matrix       if { req_ssl_sni -i matrix.hahl.id.au }
     use_backend be_https_matrix       if { req_ssl_sni -i element.hahl.id.au }
 
-    # Keycloak is on k8s Kubernetes
-    use_backend be_https_k8s_ingress  if { req_ssl_sni -i auth.hahl.id.au }
+    # Keycloak / Gitea is on Infra Kubernetes
+    use_backend be_https_infra_ingress  if { req_ssl_sni -i auth.hahl.id.au }
+    use_backend be_https_infra_ingress  if { req_ssl_sni -i git.hahl.id.au }
 
     # Default to kubernetes
-    use_backend be_https_k8s_ingress    if { req_ssl_sni -m end .apps.k8s.hahl.id.au }
+    use_backend be_https_ocp_ingress    if { req_ssl_sni -m end .apps.ocp.hahl.id.au }
     use_backend be_https_infra_ingress  if { req.ssl_sni -m end .apps.infra.hahl.id.au }
 
 ##
@@ -147,33 +172,33 @@ backend be_https_matrix
     server matrix_1 172.16.17.166:443 check
 
 ##
-# *.apps.k8s.hahl.id.au
-#
-backend be_https_k8s_ingress
-    mode tcp
-    balance leastconn
-    server worker1 172.16.17.103:443 check
-    server worker2 172.16.17.104:443 check
-    server worker3 172.16.17.105:443 check
-
-backend be_http_k8s_ingress
-    mode http
-    balance roundrobin
-    server worker1 172.16.17.103:80 check
-    server worker2 172.16.17.104:80 check
-    server worker3 172.16.17.105:80 check
-
-##
 # *.apps.infra.hahl.id.au
 #
 backend be_https_infra_ingress
+    mode tcp
+    balance leastconn
+    server syd-worker-01 172.16.17.103:443 check
+    server syd-worker-02 172.16.17.104:443 check
+    server syd-worker-03 172.16.17.105:443 check
+
+backend be_http_infra_ingress
+    mode http
+    balance leastconn
+    server syd-worker-01 172.16.17.103:80 check
+    server syd-worker-02 172.16.17.104:80 check
+    server syd-worker-03 172.16.17.105:80 check
+
+##
+# *.apps.ocp.hahl.id.au
+#
+backend be_https_ocp_ingress
     mode tcp
     balance leastconn
     server worker01 172.16.17.109:443 check
     server worker02 172.16.17.110:443 check
     server worker03 172.16.17.111:443 check
 
-backend be_http_infra_ingress
+backend be_http_ocp_ingress
     mode http
     balance leastconn
     server worker01 172.16.17.109:80 check
