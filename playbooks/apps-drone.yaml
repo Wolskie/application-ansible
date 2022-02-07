@@ -1,0 +1,11 @@
+---
+- hosts: drone
+  vars: {}
+  tasks:
+
+    - include_tasks: "common/security.yaml"
+    - include_tasks: "common/fapolicyd.yaml"
+
+    - yum:
+        name: ipa-client
+        state: installed

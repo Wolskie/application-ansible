@@ -1,0 +1,18 @@
+---
+
+- name: fapolicy | install dependencies
+  block:
+    - name: install fapolicyd
+      package:
+        name: fapolicyd
+        state: installed
+  tags:
+    fapolicyd:install
+
+- name: fapolicyd | enable service on boot
+  service:
+    name: fapolicyd
+    state: started
+    enabled: true
+  tags:
+    fapolicyd:configure

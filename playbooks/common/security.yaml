@@ -1,5 +1,11 @@
 ---
 
+- name: create motd directory
+  file:
+    dest: /etc/motd.d
+    state: directory
+    
+
 - name: remove motd
   shell: "rm /etc/motd.d/{cockpit,insights-client} || true"
   changed_when: false
