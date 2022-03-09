@@ -1,5 +1,5 @@
 ---
-- hosts: dnz-proxy
+- hosts: dmz-proxy
   vars:
     keepalived_vip: 172.16.17.38
     keepalived_interface: eth0
@@ -12,16 +12,12 @@
         state: restarted
 
     # restart squid
-    - name: restart keepalived
+    - name: restart squid
       service:
         name: squid
         state: restarted
 
   tasks:
-
-    - include_tasks: "common/subscriptions.yaml"
-    - include_tasks: "common/security.yaml"
-    - include_tasks: "common/logging.yaml"
 
     - name: install keepalived and squid
       package:
@@ -29,12 +25,11 @@
           - squid
           - keepalived
           - dnsmasq
-          - 
         state: latest
 
     - name: deploy chrony configuration
       ansible.builtin.template:
-        src: ../templates/dmz-proxy/chrony.conf
+        src: ../templates/dmz-proxy/chrony.conf.j2
         dest: /etc/chrony.conf
 
     - name: deploy squid configuration
