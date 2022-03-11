@@ -3,13 +3,17 @@
 #
 visible_hostname {{inventory_hostname}}
 
-## add in basic authentication (pending ldap auth)
+## add in basic authentication
 auth_param basic program /usr/lib64/squid/basic_ldap_auth -b cn=users,cn=accounts,dc=hahl,dc=id,dc=au -f uid=%s idm01.hahl.id.au
 auth_param basic children 50
 auth_param basic realm HAHL Proxy Services
 auth_param basic credentialsttl 5 hours
 
-acl localnet src 172.16.17.0/24
+# Ask for passwords on VDI network only
+acl localnet src 172.16.17.160/27 # net-apps
+acl localnet src 172.16.17.96/27  # net-k8s
+acl localnet src 172.16.17.0/27   # net-auth
+acl localnet src 172.16.17.32/27  # net-dmz
 
 acl SSL_ports port 443
 acl Safe_ports port 80      # http
@@ -23,6 +27,7 @@ acl DENIED_SITES url_regex "/etc/squid/deny.acl"
 acl ldap_users proxy_auth REQUIRED
 
 ## require authentication
+http_access allow localnet
 http_access allow ldap_users
 
 #  Only allow cachemgr access from localhost

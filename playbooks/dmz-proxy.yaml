@@ -11,6 +11,12 @@
         name: keepalived
         state: restarted
 
+    # restart dnsmasq
+    - name: restart dnsmasq
+      service:
+        name: dnsmasq
+        state: restarted
+
     # restart squid
     - name: restart squid
       service:
@@ -27,6 +33,12 @@
           - dnsmasq
         state: latest
 
+    - name: deploy dnsmasq configuration
+      ansible.builtin.template:
+        src: ../templates/dmz-proxy/dnsmasq.conf.j2
+        dest: /etc/dnsmasq.conf
+      notify: restart dnsmasq
+
     - name: deploy chrony configuration
       ansible.builtin.template:
         src: ../templates/dmz-proxy/chrony.conf.j2
@@ -37,6 +49,12 @@
         src: ../templates/dmz-proxy/squid.conf.j2
         dest: /etc/squid/squid.conf
       notify: restart squid
+
+    - name: deploy keepalived check scripts
+      ansible.builtin.template:
+        src: ../templates/dmz-proxy/squid-check.j2
+        dest: /usr/libexec/keepalived/squid-check
+      notify: restart keepalived
 
     - name: deploy keepalived configuration
       ansible.builtin.template:

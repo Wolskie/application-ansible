@@ -1,8 +1,9 @@
 vrrp_script chk_squid {
-  script "killall -0 haproxy"
+  script "/usr/libexec/keepalived/squid-check"
   interval 2
   weight 2
 }
+
 
 vrrp_instance VI_1 {
   interface {{keepalived_interface | default(eth0)}}
