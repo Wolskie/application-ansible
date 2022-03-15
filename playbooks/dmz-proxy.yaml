@@ -23,6 +23,12 @@
         name: squid
         state: restarted
 
+    # restart squid
+    - name: restart chronyd
+      service:
+        name: chronyd
+        state: restarted
+
   tasks:
 
     - name: install keepalived and squid
@@ -31,6 +37,7 @@
           - squid
           - keepalived
           - dnsmasq
+          - chrony
         state: latest
 
     - name: deploy dnsmasq configuration
@@ -43,6 +50,7 @@
       ansible.builtin.template:
         src: ../templates/dmz-proxy/chrony.conf.j2
         dest: /etc/chrony.conf
+      notify: restart chronyd
 
     - name: deploy squid configuration
       ansible.builtin.template:

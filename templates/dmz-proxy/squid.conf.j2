@@ -15,9 +15,13 @@ acl localnet src 172.16.17.96/27  # net-k8s
 acl localnet src 172.16.17.0/27   # net-auth
 acl localnet src 172.16.17.32/27  # net-dmz
 
+# Safe IP Addresses
+acl externalnet dst 104.26.3.128 # ocp infra ingress.
+
 acl SSL_ports port 443
 acl Safe_ports port 80      # http
 acl Safe_ports port 443     # https
+acl Safe_ports port 2222    # gitea ssh
 acl CONNECT method CONNECT
 
 ## custom acl
@@ -28,6 +32,7 @@ acl ldap_users proxy_auth REQUIRED
 
 ## require authentication
 http_access allow localnet
+http_access allow externalnet
 http_access allow ldap_users
 
 #  Only allow cachemgr access from localhost
