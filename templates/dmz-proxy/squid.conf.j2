@@ -9,11 +9,12 @@ auth_param basic children 50
 auth_param basic realm HAHL Proxy Services
 auth_param basic credentialsttl 5 hours
 
-# Ask for passwords on VDI network only
+# Ask for passwords on networks not listed here
 acl localnet src 172.16.17.160/27 # net-apps
 acl localnet src 172.16.17.96/27  # net-k8s
 acl localnet src 172.16.17.0/27   # net-auth
 acl localnet src 172.16.17.32/27  # net-dmz
+acl localnet src 172.16.17.64/27  # net-vdi
 
 # Safe IP Addresses
 acl externalnet dst 104.26.3.128 # ocp infra ingress.
@@ -23,9 +24,6 @@ acl Safe_ports port 80      # http
 acl Safe_ports port 443     # https
 acl Safe_ports port 2222    # gitea ssh
 acl CONNECT method CONNECT
-
-## custom acl
-acl DENIED_SITES url_regex "/etc/squid/deny.acl"
 
 ## proxy auth
 acl ldap_users proxy_auth REQUIRED
@@ -44,9 +42,6 @@ http_access deny !Safe_ports
 
 # Deny CONNECT to other than secure SSL ports
 http_access deny CONNECT !SSL_ports
-
-## deny custom blocks
-http_access deny DENIED_SITES
 
 # We strongly recommend the following be uncommented to protect innocent
 # web applications running on the proxy server who think the only

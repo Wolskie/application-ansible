@@ -31,6 +31,8 @@
 
   tasks:
 
+    - include_tasks: "common/fapolicyd.yaml"
+
     - name: install keepalived and squid
       package:
         name:
