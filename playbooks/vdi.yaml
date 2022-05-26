@@ -1,9 +1,0 @@
----
-- hosts: vdi
-  tasks:
-
-    # These machines dont run RHEL :(
-    #
-    #- include_tasks: "common/subscriptions.yaml"
-    - include_tasks: "common/security.yaml"
-    - include_tasks: "common/logging.yaml"

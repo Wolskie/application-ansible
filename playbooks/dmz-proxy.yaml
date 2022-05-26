@@ -1,7 +1,7 @@
 ---
 - hosts: dmz-proxy
   vars:
-    keepalived_vip: 172.16.17.38
+    keepalived_vip: 10.0.0.22
     keepalived_interface: eth0
   handlers:
 
@@ -9,23 +9,27 @@
     - name: restart keepalived
       service:
         name: keepalived
+        enabled: true
         state: restarted
 
     # restart dnsmasq
     - name: restart dnsmasq
       service:
+        enabled: true
         name: dnsmasq
         state: restarted
 
     # restart squid
     - name: restart squid
       service:
+        enabled: true
         name: squid
         state: restarted
 
     # restart squid
     - name: restart chronyd
       service:
+        enabled: true
         name: chronyd
         state: restarted
 
@@ -71,3 +75,14 @@
         src: ../templates/dmz-proxy/keepalived.conf.j2
         dest: /etc/keepalived/keepalived.conf
       notify: restart keepalived
+
+    - name: ensure services started
+      service:
+        name: "{{item}}"
+        state: started
+        enabled: true
+      with_items:
+        - squid
+        - keepalived
+        - chronyd
+        - dnsmasq
