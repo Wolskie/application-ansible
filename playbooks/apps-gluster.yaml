@@ -22,6 +22,13 @@
           - centos-release-gluster10
         state: latest
 
+    - name: apps-gluster | install packages
+      dnf:
+        name:
+          - glusterfs-server
+          - glusterfs-ganesha
+        state: latest
+
     # /etc/ganesha/ganesha.conf
     - name: deploy nfs-ganesha configuration
       ansible.builtin.template:
