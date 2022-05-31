@@ -1,7 +1,7 @@
 ---
 - hosts: apps-gluster
   vars:
-    keepalived_vip: 172.16.17.23
+    keepalived_vip: 172.16.18.23
     keepalived_interface: eth0
   handlers:
     - name: restart keepalived
