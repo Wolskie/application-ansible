@@ -1,0 +1,21 @@
+---
+# restart keepalived
+- name: restart keepalived
+  service:
+    name: keepalived
+    enabled: true
+    state: restarted
+
+# restart squid
+- name: restart glusterd
+  service:
+    enabled: true
+    name: glusterd
+    state: restarted
+
+# restart squid
+- name: restart nfs-ganesha
+  service:
+    enabled: true
+    name: nfs-ganesha
+    state: restarted

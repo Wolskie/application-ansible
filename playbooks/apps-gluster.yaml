@@ -1,0 +1,52 @@
+---
+- hosts: apps-gluster
+  vars:
+    keepalived_vip: 172.16.17.23
+    keepalived_interface: eth0
+  handlers:
+    - include_tasks: "common/handlers.yaml"
+  tasks:
+
+    # Doenst look like dnf module can do this
+    - name: apps-gluster | enable required repos
+      shell: "{{item}}"
+      with_items:
+        - "dnf config-manager --set-enabled crb"
+        - "dnf config-manager --set-enabled highavailability"
+      
+    - name: apps-gluster | install release packages
+      dnf:
+        name:
+          - epel-release
+          - centos-release-nfs-ganesha4
+          - centos-release-gluster10
+        state: latest
+
+    # /etc/ganesha/ganesha.conf
+    - name: deploy nfs-ganesha configuration
+      ansible.builtin.template:
+        src: ../templates/apps-gluster/ganesha.conf.j2
+        dest: /etc/ganesha/ganesha.conf
+      notify: restart nfs-ganesha
+
+    - name: deploy keepalived check scripts
+      ansible.builtin.template:
+        src: ../templates/apps-gluster/ganesha-check.j2
+        dest: /usr/libexec/keepalived/ganesha-check
+      notify: restart keepalived
+
+    - name: deploy keepalived configuration
+      ansible.builtin.template:
+        src: ../templates/apps-gluster/keepalived.conf.j2
+        dest: /etc/keepalived/keepalived.conf
+      notify: restart keepalived
+
+    - name: ensure services started
+      service:
+        name: "{{item}}"
+        state: started
+        enabled: true
+      with_items:
+        - glusterd
+        - nfs-ganesha
+        - keepalived
