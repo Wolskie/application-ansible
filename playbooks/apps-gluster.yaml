@@ -25,6 +25,7 @@
     - name: apps-gluster | install packages
       dnf:
         name:
+          - keepalived
           - glusterfs-server
           - glusterfs-ganesha
         state: latest
