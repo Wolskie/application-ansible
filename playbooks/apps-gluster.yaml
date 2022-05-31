@@ -34,7 +34,7 @@
       ansible.builtin.template:
         src: ../templates/apps-gluster/ganesha.conf.j2
         dest: /etc/ganesha/ganesha.conf
-      notify: restart nfs-ganesha
+      notify: restart ganesha
 
     - name: deploy keepalived check scripts
       ansible.builtin.template:

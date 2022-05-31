@@ -13,8 +13,7 @@
     name: glusterd
     state: restarted
 
-# restart squid
-- name: restart nfs-ganesha
+- name: restart ganesha
   service:
     enabled: true
     name: nfs-ganesha
