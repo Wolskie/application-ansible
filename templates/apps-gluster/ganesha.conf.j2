@@ -3,6 +3,10 @@ NFS_CORE_PARAM {
     mount_path_pseudo = true;
     # NFS protocol
     Protocols = 3,4;
+    Clustered = true;
+    MNT_Port = 20048;
+    NLM_Port = 32803;
+    Rquota_Port = 875;
 }
 EXPORT_DEFAULTS {
     # default access mode
