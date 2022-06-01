@@ -7,7 +7,7 @@ global_defs {
   enable_script_security
 }
 
-vrrp_script chk_squid {
+vrrp_script chk_ganesha {
   script "/usr/libexec/keepalived/ganesha-check"
   interval 2
   weight 2
@@ -23,7 +23,7 @@ vrrp_instance VI_1 {
     {{keepalived_vip}}
   }
   track_script {
-    chk_squid
+    chk_ganesha
   }
 }
 
