@@ -97,6 +97,18 @@
         dest: /usr/lib/systemd/system/freshclam.service
       notify: restart clamd
 
+    - name: deploy clamscan service
+      ansible.builtin.template:
+        src: ../templates/apps-gluster/clamscan-data.service.j2
+        dest: /usr/lib/systemd/system/clamscan-data.service
+      notify: restart clamd
+
+    - name: deploy clamscan timer
+      ansible.builtin.template:
+        src: ../templates/apps-gluster/clamscan-data.timer.j2
+        dest: /usr/lib/systemd/system/clamscan-data.timer
+      notify: restart clamd
+
     - name: deploy clamav configuration
       ansible.builtin.template:
         src: ../templates/apps-gluster/scan.conf.j2
@@ -113,3 +125,4 @@
         - keepalived
         - freshclam
         - clamd@scan
+        - clamscan-data.timer
