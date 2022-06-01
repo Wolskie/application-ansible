@@ -22,6 +22,12 @@
         enabled: true
         name: nfs-ganesha
         state: restarted
+
+    - name: restart clamd
+      service:
+        enabled: true
+        name: clamd@scan
+        state: restarted
   tasks:
 
     - name: deploy sysctl config
@@ -89,6 +95,7 @@
       ansible.builtin.template:
         src: ../templates/apps-gluster/freshclam.service.j2
         dest: /usr/lib/systemd/system/freshclam.service
+      notify: restart clamd
 
     - name: deploy clamav configuration
       ansible.builtin.template:
