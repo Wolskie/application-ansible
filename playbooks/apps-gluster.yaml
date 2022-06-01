@@ -24,6 +24,11 @@
         state: restarted
   tasks:
 
+    - name: deploy sysctl config
+      ansible.builtin.template:
+        src: ../templates/apps-gluster/10-keepalived.conf.j2
+        dest: /etc/sysctl.d/10-keepalived.conf
+
     # Doenst look like dnf module can do this
     - name: apps-gluster | enable required repos
       shell: "{{item}}"
@@ -58,6 +63,7 @@
       ansible.builtin.template:
         src: ../templates/apps-gluster/ganesha-check.j2
         dest: /usr/libexec/keepalived/ganesha-check
+        mode: 0775
       notify: restart keepalived
 
     - name: deploy keepalived configuration

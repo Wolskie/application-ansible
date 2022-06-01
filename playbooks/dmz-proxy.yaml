@@ -37,6 +37,13 @@
 
     - include_tasks: "common/fapolicyd.yaml"
 
+    - name: deploy sysctl config
+      ansible.builtin.template:
+        src: ../templates/dmz-proxy/10-keepalived.conf.j2
+        dest: /etc/squid/squid.conf
+      notify: restart squid
+
+
     - name: install keepalived and squid
       package:
         name:
@@ -68,6 +75,7 @@
       ansible.builtin.template:
         src: ../templates/dmz-proxy/squid-check.j2
         dest: /usr/libexec/keepalived/squid-check
+        mode: 0775
       notify: restart keepalived
 
     - name: deploy keepalived configuration

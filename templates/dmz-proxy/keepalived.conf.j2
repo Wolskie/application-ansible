@@ -1,9 +1,17 @@
+global_defs {
+  notification_email {
+    disabled
+  }
+  garp_master_refresh 60
+  script_user root root
+  enable_script_security
+}
+
 vrrp_script chk_squid {
   script "/usr/libexec/keepalived/squid-check"
   interval 2
   weight 2
 }
-
 
 vrrp_instance VI_1 {
   interface {{keepalived_interface | default(eth0)}}
