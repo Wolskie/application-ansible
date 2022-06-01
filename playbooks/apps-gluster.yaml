@@ -52,6 +52,19 @@
           - glusterfs-ganesha
         state: latest
 
+    - name: apps-gluster | install clamav packages
+      dnf:
+        name: 
+          - clamav-server
+          - clamav-data
+          - clamav-update
+          - clamav-filesystem
+          - clamav
+          - clamav-scanner-systemd
+          - clamav-devel
+          - clamav-lib
+          - clamav-server-systemd
+
     # /etc/ganesha/ganesha.conf
     - name: deploy nfs-ganesha configuration
       ansible.builtin.template:
@@ -72,6 +85,16 @@
         dest: /etc/keepalived/keepalived.conf
       notify: restart keepalived
 
+    - name: deploy freshclam configuration
+      ansible.builtin.template:
+        src: ../templates/apps-gluster/freshclam.service.j2
+        dest: /usr/lib/systemd/system/freshclam.service
+
+    - name: deploy clamav configuration
+      ansible.builtin.template:
+        src: ../templates/apps-gluster/scan.conf.j2
+        dest: /etc/clamd.d/scan.conf
+
     - name: ensure services started
       service:
         name: "{{item}}"
@@ -81,3 +104,5 @@
         - glusterd
         - nfs-ganesha
         - keepalived
+        - freshclam
+        - clamd@scan
