@@ -24,6 +24,10 @@
         state: restarted
   tasks:
 
+    - name: apps-cluster | set hostname
+      hostname:
+        name: {{ inventory_hostname }}
+
     - name: apps-gluster | format disks
       community.general.filesystem:
         fstype: xfs
