@@ -1,7 +1,7 @@
 [Unit]
 Description=ClamAV virus scan
-Requires=clamav-daemon.service
-After=clamav-daemon.service
+Requires=clamd@scan.service
+After=clamd@scan.service
 
 [Service]
 ExecStart=/bin/clamdscan --move=/var/tmp -r -i /data
