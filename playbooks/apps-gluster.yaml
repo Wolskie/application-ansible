@@ -17,22 +17,46 @@
         name: glusterd
         state: restarted
 
-    - name: restart clamd
+    - name: restart nfs
       service:
         enabled: true
-        name: clamd@scan
+        name: nfs-server
         state: restarted
   tasks:
 
-    - name: deploy sysctl config
-      ansible.builtin.template:
-        src: ../templates/apps-gluster/10-keepalived.conf.j2
-        dest: /etc/sysctl.d/10-keepalived.conf
+    - name: apps-gluster | format disks
+      community.general.filesystem:
+        fstype: xfs
+        dev: "{{item}}"
+      with_items:
+        - /dev/vdc
+        - /dev/vdd
 
-    - name: deploy exports
-      ansible.builtin.template:
-        src: ../templates/apps-gluster/exports.j2
-        dest: /etc/exports
+    - name: apps-gluster | create mountpoints
+      file:
+        path: "{{item}}"
+        state: directory
+      with_items:
+        - /data/glusterfs/nfs_data/bricks/1
+        - /data/glusterfs/volumes/bricks/1
+        - /exports/volumes
+        - /exports/data
+
+    - name: apps-gluster | mount disks
+      ansible.posix.mount:
+        path: "{{item.path}}"
+        src:  "{{item.src}}"
+        fstype: xfs
+        state: present
+      with_items:
+
+        # Mount for gluster
+        - { src: /dev/vdc, path: /data/glusterfs/nfs_volumes/bricks/1 }
+        - { src: /dev/vdd, path: /data/gluserfs/nfs_data/bricks/1 }
+        # Mount for nfs
+        - { src: /dev/vdc, path: /exports/volumes }
+        - { src: /dev/vdd, path: /exports/data }
+
 
     # Doenst look like dnf module can do this
     - name: apps-gluster | enable required repos
@@ -57,18 +81,15 @@
           - nfs-utils
         state: latest
 
-    - name: apps-gluster | install clamav packages
-      dnf:
-        name: 
-          - clamav-server
-          - clamav-data
-          - clamav-update
-          - clamav-filesystem
-          - clamav
-          - clamav-scanner-systemd
-          - clamav-devel
-          - clamav-lib
-          - clamav-server-systemd
+    - name: deploy sysctl config
+      ansible.builtin.template:
+        src: ../templates/apps-gluster/10-keepalived.conf.j2
+        dest: /etc/sysctl.d/10-keepalived.conf
+
+    - name: deploy exports
+      ansible.builtin.template:
+        src: ../templates/apps-gluster/exports.j2
+        dest: /etc/exports
 
     - name: deploy keepalived check scripts
       ansible.builtin.template:
@@ -83,29 +104,6 @@
         dest: /etc/keepalived/keepalived.conf
       notify: restart keepalived
 
-    - name: deploy freshclam configuration
-      ansible.builtin.template:
-        src: ../templates/apps-gluster/freshclam.service.j2
-        dest: /usr/lib/systemd/system/freshclam.service
-      notify: restart clamd
-
-    - name: deploy clamscan service
-      ansible.builtin.template:
-        src: ../templates/apps-gluster/clamscan-data.service.j2
-        dest: /usr/lib/systemd/system/clamscan-data.service
-      notify: restart clamd
-
-    - name: deploy clamscan timer
-      ansible.builtin.template:
-        src: ../templates/apps-gluster/clamscan-data.timer.j2
-        dest: /usr/lib/systemd/system/clamscan-data.timer
-      notify: restart clamd
-
-    - name: deploy clamav configuration
-      ansible.builtin.template:
-        src: ../templates/apps-gluster/scan.conf.j2
-        dest: /etc/clamd.d/scan.conf
-
     - name: ensure services started
       service:
         name: "{{item}}"
@@ -115,6 +113,3 @@
         - glusterd
         - nfs-server
         - keepalived
-        - freshclam
-        - clamd@scan
-        - clamscan-data.timer
