@@ -17,12 +17,6 @@
         name: glusterd
         state: restarted
 
-    - name: restart ganesha
-      service:
-        enabled: true
-        name: nfs-ganesha
-        state: restarted
-
     - name: restart clamd
       service:
         enabled: true
@@ -34,6 +28,11 @@
       ansible.builtin.template:
         src: ../templates/apps-gluster/10-keepalived.conf.j2
         dest: /etc/sysctl.d/10-keepalived.conf
+
+    - name: deploy exports
+      ansible.builtin.template:
+        src: ../templates/apps-gluster/exports.j2
+        dest: /etc/exports
 
     # Doenst look like dnf module can do this
     - name: apps-gluster | enable required repos
@@ -55,7 +54,7 @@
         name:
           - keepalived
           - glusterfs-server
-          - glusterfs-ganesha
+          - nfs-utils
         state: latest
 
     - name: apps-gluster | install clamav packages
@@ -71,17 +70,10 @@
           - clamav-lib
           - clamav-server-systemd
 
-    # /etc/ganesha/ganesha.conf
-    - name: deploy nfs-ganesha configuration
-      ansible.builtin.template:
-        src: ../templates/apps-gluster/ganesha.conf.j2
-        dest: /etc/ganesha/ganesha.conf
-      notify: restart ganesha
-
     - name: deploy keepalived check scripts
       ansible.builtin.template:
-        src: ../templates/apps-gluster/ganesha-check.j2
-        dest: /usr/libexec/keepalived/ganesha-check
+        src: ../templates/apps-gluster/nfs-check.j2
+        dest: /usr/libexec/keepalived/nfs-check
         mode: 0775
       notify: restart keepalived
 
@@ -121,7 +113,7 @@
         enabled: true
       with_items:
         - glusterd
-        - nfs-ganesha
+        - nfs-server
         - keepalived
         - freshclam
         - clamd@scan

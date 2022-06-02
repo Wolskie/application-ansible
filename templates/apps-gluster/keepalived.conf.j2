@@ -8,7 +8,7 @@ global_defs {
 }
 
 vrrp_script chk_ganesha {
-  script "/usr/libexec/keepalived/ganesha-check"
+  script "/usr/libexec/keepalived/nfs-check"
   interval 2
   weight 2
 }
