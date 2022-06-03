@@ -17,10 +17,10 @@
         name: glusterd
         state: restarted
 
-    - name: restart nfs
+    - name: restart ganesha
       service:
         enabled: true
-        name: nfs-server
+        name: nfs-ganesha
         state: restarted
   tasks:
 
@@ -43,8 +43,7 @@
       with_items:
         - /data/glusterfs/nfs_data/bricks/1
         - /data/glusterfs/nfs_volumes/bricks/1
-        - /exports/volumes
-        - /exports/data
+
 
     - name: apps-gluster | mount disks
       ansible.posix.mount:
@@ -65,20 +64,6 @@
       with_items:
         - /data/glusterfs/nfs_data/bricks/1/data
         - /data/glusterfs/nfs_volumes/bricks/1/data
-
-    - name: apps-gluster | mount disks
-      ansible.posix.mount:
-        path: "{{item.path}}"
-        src:  "{{item.src}}"
-        fstype: none
-        opts: bind
-        state: present
-      with_items:
-
-        # Mount for gluster
-        - { path: /exports/volumes, src: /data/glusterfs/nfs_volumes/bricks/1/data }
-        - { path: /exports/data,    src: /data/glusterfs/nfs_data/bricks/1/data }
-
 
 
     # Doenst look like dnf module can do this
@@ -101,7 +86,7 @@
         name:
           - keepalived
           - glusterfs-server
-          - nfs-utils
+          - glusterfs-ganesha
         state: latest
 
     - name: deploy sysctl config
@@ -111,8 +96,8 @@
 
     - name: deploy exports
       ansible.builtin.template:
-        src: ../templates/apps-gluster/exports.j2
-        dest: /etc/exports
+        src: ../templates/apps-gluster/ganesha.j2
+        dest: /etc/ganesha/ganesha.conf
 
     - name: deploy keepalived check scripts
       ansible.builtin.template:
@@ -134,5 +119,5 @@
         enabled: true
       with_items:
         - glusterd
-        - nfs-server
+        #- nfs-ganesha
         - keepalived
