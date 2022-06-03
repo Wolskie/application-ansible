@@ -29,7 +29,7 @@
         name: "{{ inventory_hostname }}"
 
     - name: apps-gluster | format disks
-      community.general.filesystem:
+      filesystem:
         fstype: xfs
         dev: "{{item}}"
       with_items:
