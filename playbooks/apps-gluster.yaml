@@ -51,15 +51,34 @@
         path: "{{item.path}}"
         src:  "{{item.src}}"
         fstype: xfs
-        state: present
+        state: mounted
       with_items:
 
         # Mount for gluster
         - { src: /dev/vdc, path: /data/glusterfs/nfs_volumes/bricks/1 }
         - { src: /dev/vdd, path: /data/gluserfs/nfs_data/bricks/1 }
-        # Mount for nfs
-        - { src: /dev/vdc, path: /exports/volumes }
-        - { src: /dev/vdd, path: /exports/data }
+
+    - name: apps-gluster | create data dirs
+      file:
+        path: "{{item}}"
+        state: directory
+      with_items:
+        - /data/glusterfs/nfs_data/bricks/1/data
+        - /data/glusterfs/nfs_volumes/bricks/1/data
+
+    - name: apps-gluster | mount disks
+      ansible.posix.mount:
+        path: "{{item.path}}"
+        src:  "{{item.src}}"
+        fstype: none
+        opts: bind
+        state: mounted
+      with_items:
+
+        # Mount for gluster
+        - { path: /exports/volumes, src: /data/glusterfs/nfs_volumes/bricks/1/data }
+        - { path: /exports/data,    src: /data/gluserfs/nfs_data/bricks/1/data }
+
 
 
     # Doenst look like dnf module can do this
