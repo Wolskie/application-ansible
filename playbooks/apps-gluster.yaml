@@ -56,7 +56,7 @@
 
         # Mount for gluster
         - { src: /dev/vdc, path: /data/glusterfs/nfs_volumes/bricks/1 }
-        - { src: /dev/vdd, path: /data/gluserfs/nfs_data/bricks/1 }
+        - { src: /dev/vdd, path: /data/glusterfs/nfs_data/bricks/1 }
 
     - name: apps-gluster | create data dirs
       file:
