@@ -96,7 +96,7 @@
 
     - name: deploy exports
       ansible.builtin.template:
-        src: ../templates/apps-gluster/ganesha.j2
+        src: ../templates/apps-gluster/ganesha.conf.j2
         dest: /etc/ganesha/ganesha.conf
 
     - name: deploy keepalived check scripts
