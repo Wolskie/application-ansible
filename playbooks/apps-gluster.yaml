@@ -42,7 +42,7 @@
         state: directory
       with_items:
         - /data/glusterfs/nfs_data/bricks/1
-        - /data/glusterfs/volumes/bricks/1
+        - /data/glusterfs/nfs_volumes/bricks/1
         - /exports/volumes
         - /exports/data
 
