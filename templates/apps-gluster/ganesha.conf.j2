@@ -17,14 +17,14 @@ EXPORT {
     # uniq ID
     Export_Id = 101;
     # mount path of Gluster Volume
-    Path = "/mnt/DataVol0";
+    Path = "/mnt/nfs_volumes";
     FSAL {
     	# any name
         name = GLUSTER;
         # hostname or IP address of this Node
         hostname="{{inventory_hostname}}";
         # Gluster volume name
-        volume="nfs_volume";
+        volume="nfs_volumes";
     }
     # config for root Squash
     Squash="No_root_squash";
