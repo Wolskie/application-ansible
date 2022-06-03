@@ -77,7 +77,7 @@
 
         # Mount for gluster
         - { path: /exports/volumes, src: /data/glusterfs/nfs_volumes/bricks/1/data }
-        - { path: /exports/data,    src: /data/gluserfs/nfs_data/bricks/1/data }
+        - { path: /exports/data,    src: /data/glusterfs/nfs_data/bricks/1/data }
 
 
 
