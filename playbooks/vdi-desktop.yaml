@@ -15,6 +15,10 @@
         name:
           - lightdm
           - xrdp
+          - xrdp-selinux
+          - ipa-client
+          - xorgxrdp
+          - ansible-core
           - '@xfce-desktop'
           - '@xfce-apps'
           - '@xfce-extra-plugins'
@@ -22,7 +26,7 @@
         state: latest
 
 
-    - name: remove xfconf-migration
+    - name: vdi-desktop | remove xfconf-migration
       file:
         path: /etc/xdg/autostart/xfconf-migration-4.6.desktop
         state: absent
@@ -31,9 +35,16 @@
       ansible.builtin.template:
         src: "../templates/vdi-desktop/{{item.template}}"
         dest: "{{item.dest}}"
+        mode: 0755
       with_items:
         - { template: desktop.j2, dest: /etc/sysconfig/desktop }
         - { template: xscreensaver.j2, dest: /etc/skel/.xscreensaver }
         - { template: lightdm.conf.j2, dest: /etc/lightdm/lightdm.conf }
         - { template: polkit-rules.conf.j2, dest: /etc/polkit-1/rules.d/40-freeipa.rules }
         - { template: xfce-config.xml.j2, dest: /etc/xdg/xfce4/panel/default.xml }
+
+    - name: vdi-desktop | open firewall rules for xrdp
+      ansible.posix.firewalld:
+        service: rdp
+        permanent: yes
+        state: enabled
