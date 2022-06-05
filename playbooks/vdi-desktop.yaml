@@ -48,3 +48,9 @@
         service: rdp
         permanent: yes
         state: enabled
+
+    - name: vdi-desktop | enable xrdp 
+      service:
+        name: xrdp
+        state: started
+        enabled: true
