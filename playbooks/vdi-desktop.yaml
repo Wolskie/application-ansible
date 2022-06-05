@@ -1,0 +1,27 @@
+---
+- hosts: vdi-desktop
+  vars:
+    admin_group: grp-hahl-admins
+  handlers:
+
+  tasks:
+
+    - name: vdi-desktop | install packages
+      dnf:
+        name:
+          - lightdm
+          - xrdp
+          - '@xfce-desktop'
+          - '@xfce-apps'
+          - '@xfce-extra-plugins'
+          - '@xfce-media'
+        state: latest
+
+
+# Install XRDP components
+dnf install xrdp xrdp-selinux tigervnc-server -y
+
+# Install the Desktop components here.
+dnf groupinstall "Xfce Desktop" -y
+dnf install numix-icon-theme lightdm -y
+dnf install @xfce-desktop @xfce-apps @xfce-extra-plugins @xfce-media -y

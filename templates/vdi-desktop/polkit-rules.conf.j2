@@ -1,0 +1,10 @@
+polkit.addAdminRule(function(action, subject) {
+    return ["unix-group:admins", "unix-group:wheel"];
+});
+
+polkit.addRule(function(action, subject) {
+    if (action.id == "org.freedesktop.policykit.exec" &&
+        subject.isInGroup("{{admin_group}}")) {
+        return polkit.Result.YES;
+    }
+});
