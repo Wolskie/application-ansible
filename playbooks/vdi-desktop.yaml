@@ -6,6 +6,10 @@
 
   tasks:
 
+    - name: vdi-desktop | set hostname
+      hostname:
+        name: "{{ inventory_hostname }}"
+
     - name: vdi-desktop | install packages
       dnf:
         name:
@@ -16,3 +20,20 @@
           - '@xfce-extra-plugins'
           - '@xfce-media'
         state: latest
+
+
+    - name: remove xfconf-migration
+      file:
+        path: /etc/xdg/autostart/xfconf-migration-4.6.desktop
+        state: absent
+
+    - name: vdi-desktop | deploy templates
+      ansible.builtin.template:
+        src: "../templates/vdi-desktop/{{item.template}}"
+        dest: "{{item.dest}}"
+      with_items:
+        - { template: desktop.j2, dest: /etc/sysconfig/desktop }
+        - { template: xscreensaver.j2, dest: /etc/skel/.xscreensaver }
+        - { template: lightdm.conf.j2, dest: /etc/lightdm/lightdm.conf }
+        - { template: polkit-rules.conf.j2, dest: /etc/polkit-1/rules.d/40-freeipa.rules }
+        - { template: xfce-config.xml.j2, dest: /etc/xdg/xfce4/panel/default.xml }
