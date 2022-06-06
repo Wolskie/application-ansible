@@ -45,8 +45,13 @@
         - { template: lightdm.conf.j2, dest: /etc/lightdm/lightdm.conf }
         - { template: polkit-rules.conf.j2, dest: /etc/polkit-1/rules.d/40-freeipa.rules }
         - { template: xfce-config.xml.j2, dest: /etc/xdg/xfce4/panel/default.xml }
-        - { template: xfce-desktop.xml.j2, dest: /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml }
-        - { template: xrdp.init.j2, dest: /etc/xrdp/xrdp.ini }
+
+    - name: vdi-desktop | copy files
+      copy:
+        src: "../templates/vdi-desktop/{{item.template}}"
+        dest: "{{item.dest}}"
+        mode: 0755
+      with_items:
         - { template: rh9-3.svg, dest: /usr/share/backgrounds/images/rh9-3.svg }
         - { template: hahl.bmp, dest: /etc/xrdp/hahl.bmp" }
 
