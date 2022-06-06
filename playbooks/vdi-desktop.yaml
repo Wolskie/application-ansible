@@ -54,8 +54,11 @@
         permanent: yes
         state: enabled
 
-    - name: vdi-desktop | enable xrdp 
+    - name: vdi-desktop | enable services
       service:
-        name: xrdp
+        name: "{{item}}"
         state: started
         enabled: true
+      with_items:
+        - xrdp
+        - fapolicyd
