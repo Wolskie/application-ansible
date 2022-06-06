@@ -13,6 +13,9 @@
     - name: vdi-desktop | install packages
       dnf:
         name:
+          - ansible-core
+          - git
+          - fapolicyd
           - lightdm
           - xrdp
           - xrdp-selinux
@@ -42,6 +45,8 @@
         - { template: lightdm.conf.j2, dest: /etc/lightdm/lightdm.conf }
         - { template: polkit-rules.conf.j2, dest: /etc/polkit-1/rules.d/40-freeipa.rules }
         - { template: xfce-config.xml.j2, dest: /etc/xdg/xfce4/panel/default.xml }
+        - { template: xfce-desktop.xml.j2, dest: /etc/xdg/xfce4/xfconf/xfce-perchannel-xml/xfce4-desktop.xml }
+        - { template: rh9-3.svg, dest: /usr/share/backgrounds/images/rh9-3.svg }
 
     - name: vdi-desktop | open firewall rules for xrdp
       ansible.posix.firewalld:
