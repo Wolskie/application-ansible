@@ -54,7 +54,7 @@
         mode: 0755
       with_items:
         - { template: rh9-3.svg, dest: /usr/share/backgrounds/images/rh9-3.svg }
-        - { template: hahl.bmp, dest: /etc/xrdp/hahl.bmp" }
+        - { template: hahl.bmp, dest: /etc/xrdp/hahl.bmp }
 
     - name: vdi-desktop | open firewall rules for xrdp
       ansible.posix.firewalld:
