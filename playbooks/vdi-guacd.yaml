@@ -28,4 +28,4 @@
     - name: vdi-guacd | create pods
       containers.podman.podman_play:
         kube_file: /opt/guacd.yaml
-        state: present
+        state: started
