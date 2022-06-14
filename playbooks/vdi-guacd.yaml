@@ -1,0 +1,30 @@
+---
+- hosts: vdi-guacd
+
+  tasks:
+
+    - name: vdi-guacd | set hostname
+      hostname:
+        name: "{{ inventory_hostname }}"
+
+    - name: vdi-guacd | install packages
+      dnf:
+        name:
+          - ansible-core
+          - git
+          - podman
+          - ipa-client
+        state: latest
+
+    - name: vdi-guacd | deploy templates
+      ansible.builtin.template:
+        src: "../templates/vdi-guacd/{{item.template}}"
+        dest: "{{item.dest}}"
+        mode: 0755
+      with_items:
+        - { template: guacd.yaml.j2, dest: /opt/guacd.yaml" }
+
+
+    - name: vdi-guacd | create pods
+      containers.podman.podman_play:
+        kube_file: /opt/guacd.yaml
