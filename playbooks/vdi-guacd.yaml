@@ -22,7 +22,7 @@
         dest: "{{item.dest}}"
         mode: 0755
       with_items:
-        - { template: guacd.yaml.j2, dest: /opt/guacd.yaml" }
+        - { template: guacd.yaml.j2, dest: /opt/guacd.yaml }
 
 
     - name: vdi-guacd | create pods
