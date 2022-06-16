@@ -1,0 +1,73 @@
+---
+- hosts: dmz-lb
+  vars:
+    keepalived_vip: 10.0.0.40
+    keepalived_interface: eth0
+  handlers:
+
+    # restart keepalived
+    - name: restart keepalived
+      service:
+        name: keepalived
+        enabled: true
+        state: restarted
+
+    - name: restart haproxy
+      service:
+        name: haproxy
+        enabled: true
+        state: restarted
+
+  tasks:
+
+    - name: dmz-lb | set hostname
+      hostname:
+        name: "{{ inventory_hostname }}"
+
+
+    - name: install keepalived and squid
+      package:
+        name:
+          - keepalived
+          - haproxy
+          - podman
+          - ansible-core
+        state: latest
+
+    - name: apps-lb | allow haproxy connct any
+      command: "setsebool -P haproxy_connect_any 1"
+
+    - name: deploy haproxy configuration
+      ansible.builtin.template:
+        src: ../templates/dmz-lb/haproxy.conf.j2
+        dest: /etc/haproxy.conf.j2
+        mode: 0775
+      notify: restart haproxy
+
+    - name: deploy keepalived check scripts
+      ansible.builtin.template:
+        src: ../templates/dmz-lb/app-check.j2
+        dest: /usr/libexec/keepalived/app-check
+        mode: 0775
+      notify: restart keepalived
+
+    - name: deploy keepalived configuration
+      ansible.builtin.template:
+        src: ../templates/dmz-lb/keepalived.conf.j2
+        dest: /etc/keepalived/keepalived.conf
+      notify: restart keepalived
+
+    - name: deploy sysctl configuration
+      ansible.builtin.template:
+        src: ../templates/dmz-lb/10-keepalived.conf.j2
+        dest: /etc/sysctl.d/10-keepalived.conf
+
+    - name: ensure services started
+      service:
+        name: "{{item}}"
+        state: started
+        enabled: true
+      with_items:
+        - keepalived
+        - haproxy
+        - chronyd
