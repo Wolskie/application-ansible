@@ -12,9 +12,9 @@
         enabled: true
         state: restarted
 
-    - name: restart haproxy
+    - name: restart nginx
       service:
-        name: haproxy
+        name: nginx
         enabled: true
         state: restarted
 
@@ -25,24 +25,17 @@
         name: "{{ inventory_hostname }}"
 
 
-    - name: install keepalived and squid
+    - name: dmz-lb | install software
       package:
         name:
           - keepalived
-          - haproxy
+          - nginx
           - podman
           - ansible-core
         state: latest
 
-    - name: apps-lb | allow haproxy connct any
+    - name: dmz-lb | allow haproxy connct any
       command: "setsebool -P haproxy_connect_any 1"
-
-    - name: deploy haproxy configuration
-      ansible.builtin.template:
-        src: ../templates/dmz-lb/haproxy.conf.j2
-        dest: /etc/haproxy.conf.j2
-        mode: 0775
-      notify: restart haproxy
 
     - name: deploy keepalived check scripts
       ansible.builtin.template:
@@ -62,12 +55,12 @@
         src: ../templates/dmz-lb/10-keepalived.conf.j2
         dest: /etc/sysctl.d/10-keepalived.conf
 
-    - name: ensure services started
+    - name: dmz-lb | ensure services started
       service:
         name: "{{item}}"
         state: started
         enabled: true
       with_items:
         - keepalived
-        - haproxy
+        - nginx
         - chronyd

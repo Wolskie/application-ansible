@@ -16,7 +16,7 @@ vrrp_script chk_app {
 vrrp_instance VI_1 {
   interface {{keepalived_interface | default(eth0)}}
   state MASTER
-  virtual_router_id 62
+  virtual_router_id 63
   priority 100
   virtual_ipaddress {
     {{keepalived_vip}}
