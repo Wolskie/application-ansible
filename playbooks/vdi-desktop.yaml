@@ -46,6 +46,7 @@
         - { template: polkit-rules.conf.j2, dest: /etc/polkit-1/rules.d/40-freeipa.rules }
         - { template: xfce-config.xml.j2, dest: /etc/xdg/xfce4/panel/default.xml }
         - { template: xrdp.ini.j2, dest: /etc/xrdp/xrdp.ini }
+        - { template: sssd.conf.j2, dest: /etc/sssd/conf.d/xrdp.conf }
 
     - name: vdi-desktop | copy files
       copy:
