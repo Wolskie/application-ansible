@@ -1,0 +1,61 @@
+---
+- hosts: dmz-dev
+  vars:
+    admin_group: grp-hahl-admins
+  handlers:
+
+  tasks:
+
+    - name: vdi-desktop | set hostname
+      hostname:
+        name: "{{ inventory_hostname }}"
+
+    - name: vdi-desktop | install packages
+      dnf:
+        name:
+          - ansible-core
+          - git
+          - lightdm
+          - xrdp
+          - xrdp-selinux
+          - ipa-client
+          - xorgxrdp
+          - ansible-core
+          - openbox
+        state: latest
+
+
+    - name: vdi-desktop | remove xfconf-migration
+      file:
+        path: /etc/xdg/autostart/xfconf-migration-4.6.desktop
+        state: absent
+
+    - name: vdi-desktop | deploy templates
+      ansible.builtin.template:
+        src: "../templates/vdi-desktop/{{item.template}}"
+        dest: "{{item.dest}}"
+        mode: 0755
+      with_items:
+        - { template: desktop.j2, dest: /etc/sysconfig/desktop }
+        - { template: xscreensaver.j2, dest: /etc/skel/.xscreensaver }
+        - { template: lightdm.conf.j2, dest: /etc/lightdm/lightdm.conf }
+        - { template: polkit-rules.conf.j2, dest: /etc/polkit-1/rules.d/40-freeipa.rules }
+        - { template: xrdp.ini.j2, dest: /etc/xrdp/xrdp.ini }
+        - { template: sssd.conf.j2, dest: /etc/sssd/conf.d/xrdp.conf }
+
+    - name: vdi-desktop | copy files
+      copy:
+        src: "../templates/vdi-desktop/{{item.template}}"
+        dest: "{{item.dest}}"
+        mode: 0755
+      with_items:
+        - { template: rh9-3.svg, dest: /usr/share/backgrounds/images/rh9-3.svg }
+        - { template: hahl.bmp, dest: /etc/xrdp/hahl.bmp }
+
+    - name: vdi-desktop | enable services
+      service:
+        name: "{{item}}"
+        state: started
+        enabled: true
+      with_items:
+        - xrdp
