@@ -12,9 +12,9 @@
         enabled: true
         state: restarted
 
-    - name: restart nginx
+    - name: restart haproxy
       service:
-        name: nginx
+        name: haproxy
         enabled: true
         state: restarted
 
@@ -32,12 +32,17 @@
           - nginx
           - podman
           - ansible-core
-          - nginx-mod-stream
+          - haproxy
         state: latest
 
     - name: dmz-lb | allow haproxy connct any
       command: "setsebool -P haproxy_connect_any 1"
 
+    - name: dmz-lb | allow haproxy network connect
+      command: "setsebool -P httpd_can_network_connect 1"
+
+    - name: dmz-lb | allow haproxy set file limit
+      command: "setsebool -P httpd_setrlimit 1"
 
     - name: deploy keepalived check scripts
       ansible.builtin.template:
@@ -57,20 +62,11 @@
         src: ../templates/dmz-lb/10-keepalived.conf.j2
         dest: /etc/sysctl.d/10-keepalived.conf
 
-    - name: dmz-lb | create nginx streams directory
-      file:
-        path: /etc/nginx/streams.d
-        state: directory
-
     - name: dmz-lb | deploy nginx config
       ansible.builtin.template:
-        src: ../templates/dmz-lb/nginx.conf
-        dest: /etc/nginx/nginx.conf
-
-    - name: dmz-lb | deploy nginx streams config
-      ansible.builtin.template:
-        src: ../templates/dmz-lb/streams.conf
-        dest: /etc/nginx/streams.d/streams.conf
+        src: ../templates/dmz-lb/haproxy.cfg.j2
+        dest: /etc/haproxy/haproxy.cfg
+      notify: restart haproxy
 
     - name: dmz-lb | ensure services started
       service:
@@ -79,5 +75,5 @@
         enabled: true
       with_items:
         - keepalived
-        - nginx
+        - haproxy
         - chronyd
