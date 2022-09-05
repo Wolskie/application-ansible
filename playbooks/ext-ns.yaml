@@ -32,6 +32,8 @@
       ansible.builtin.template:
         src: "../templates/ext-ns/{{item.src}}"
         dest: "{{item.dst}}"
+        owner: root
+        group: named
       with_items:
         - { src: 'named-master.conf.j2', dst: '/etc/named.conf' }
         - { src: 'named.hahl.zones.j2', dst: '/etc/named.hahl.zones' }
