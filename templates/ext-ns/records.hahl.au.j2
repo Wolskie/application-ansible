@@ -1,0 +1,12 @@
+$TTL 3H
+@   IN SOA  @ hostmaster.hahl.au. (
+                {{serial.stdout}}   ; serial
+                3H  ; refresh
+                1H  ; retry
+                1W  ; expire
+                3H )    ; minimum
+@            IN   NS     ns1.hahl.au.
+@            IN   A      192.0.2.10
+ns1          IN   A      194.195.125.117
+mail         IN   A      127.0.0.1
+

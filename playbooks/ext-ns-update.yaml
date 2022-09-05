@@ -1,0 +1,21 @@
+---
+- hosts: ext-ns-master
+  handlers:
+
+    # restart keepalived
+    - name: restart named
+      shell: "rndc reload"
+  tasks:
+
+    - name: set serial
+      shell: "date +%s"
+      register: serial
+
+    - name: deploy templates
+      ansible.builtin.template:
+        src: "../templates/ext-ns/{{item.src}}"
+        dest: "{{item.dst}}"
+      notify: restart named
+      with_items:
+        - { src: 'records.hahl.au.j2', dst: '/var/named/named.hahl.au' }
+
