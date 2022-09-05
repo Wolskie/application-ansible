@@ -1,0 +1,14 @@
+zone "hahl.au" IN {
+
+{% if 'ext-ns-master' in group_names %}    
+	type master;
+        allow-transfer { {{ groups['ext-ns-slaves'] | map('extract', hostvars, ['ansible_eth0', 'ipv4', 'address']) | join(',') }}; };
+{% endif %}
+
+{% if 'ext-ns-saves' in group_names %}    
+	type slave;
+        masters { {{ groups['ext-ns-master'] | map('extract', hostvars, ['ansible_eth0', 'ipv4', 'address']) | join(',') }}; };
+{% endif %}
+
+	file "named.hahl.au";
+};

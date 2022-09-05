@@ -20,17 +20,16 @@
 
   tasks:
 
+    - include_tasks: "common/fapolicyd.yaml"
+
     - name: dmz-lb | set hostname
       hostname:
         name: "{{ inventory_hostname }}"
-
 
     - name: dmz-lb | install software
       package:
         name:
           - keepalived
-          - nginx
-          - podman
           - ansible-core
           - haproxy
         state: latest
@@ -62,7 +61,7 @@
         src: ../templates/dmz-lb/10-keepalived.conf.j2
         dest: /etc/sysctl.d/10-keepalived.conf
 
-    - name: dmz-lb | deploy nginx config
+    - name: dmz-lb | deploy haproxy config
       ansible.builtin.template:
         src: ../templates/dmz-lb/haproxy.cfg.j2
         dest: /etc/haproxy/haproxy.cfg

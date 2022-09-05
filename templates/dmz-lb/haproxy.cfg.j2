@@ -75,11 +75,13 @@ frontend fe_http
     mode http
 
     acl app_cloud         hdr(host) -i cloud.hahl.au 
+    acl app_haproxy       hdr(host) -i syd-lb-vip.ext.hahl.au
     acl app_ocp_ingress   hdr(host) -m end .apps.ocp.hahl.au
 
     redirect scheme https code 301 if app_cloud
 
     # Default backend to 
+    use_backend be_http_haproxy       if app_haproxy
     use_backend be_http_ocp_ingress   if app_ocp_ingress 
 
 ##
@@ -113,6 +115,11 @@ backend be_https_ocp_ingress
     server syd-worker-01 syd-worker-01.ocp.hahl.au:443 check
     server syd-worker-02 syd-worker-02.ocp.hahl.au:443 check
     server syd-worker-03 syd-worker-03.ocp.hahl.au:443 check
+
+backend be_http_haproxy
+    mode http
+    balance leastconn
+    server syd-worker-01 127.0.0.1:9000 check
 
 backend be_http_ocp_ingress
     mode http
