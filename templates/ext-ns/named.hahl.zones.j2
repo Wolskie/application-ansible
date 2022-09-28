@@ -7,6 +7,9 @@ zone "hahl.au" IN {
 
         allow-transfer { {{ groups['ext-ns-slaves'] | map('extract', hostvars, ['ansible_eth0', 'ipv4', 'address']) | join(';') }}; };
         also-notify { {{ groups['ext-ns-slaves'] | map('extract', hostvars, ['ansible_eth0', 'ipv4', 'address']) | join(';') }}; };
+	update-policy {
+		grant hahl-ddns-key zonesub ANY;
+	};
 {% endif %}
 
 {% if 'ext-ns-slaves' in group_names %}    

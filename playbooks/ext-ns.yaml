@@ -32,12 +32,13 @@
       ansible.builtin.template:
         src: "../templates/ext-ns/{{item.src}}"
         dest: "{{item.dst}}"
-        owner: root
+        owner: named
         group: named
       with_items:
         - { src: 'named-master.conf.j2', dst: '/etc/named.conf' }
         - { src: 'named.hahl.zones.j2', dst: '/etc/named.hahl.zones' }
         - { src: 'nftables.conf.j2', dst: '/etc/sysconfig/nftables.conf' }
+        - { src: 'nsupdate.key.j2', dst: '/etc/named.nsupdate.key' }
 
     - name: ensure services restarted
       service:

@@ -34,7 +34,7 @@ zone "." IN {
 	file "named.ca";
 };
 
+include "/etc/named.nsupdate.key";
+include "/etc/named.root.key";
 include "/etc/named.rfc1912.zones";
 include "/etc/named.hahl.zones";
-include "/etc/named.root.key";
-
