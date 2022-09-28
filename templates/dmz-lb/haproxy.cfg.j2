@@ -103,7 +103,7 @@ frontend fe_https
 backend be_https_cloud
     mode tcp
     balance roundrobin
-    server syd-cloud-01 syd-cloud-01.apps.hahl.au:443 check
+    server syd-cloud-01 syd-cloud-01.apps.hahl.au:443 check port
     server syd-cloud-02 syd-cloud-01.apps.hahl.au:443 check backup
 
 ##
