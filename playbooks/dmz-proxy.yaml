@@ -40,9 +40,7 @@
     - name: deploy sysctl config
       ansible.builtin.template:
         src: ../templates/dmz-proxy/10-keepalived.conf.j2
-        dest: /etc/squid/squid.conf
-      notify: restart squid
-
+        dest: /etc/sysctl.d/10-keepalived.conf
 
     - name: install keepalived and squid
       package:
