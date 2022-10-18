@@ -26,8 +26,6 @@ ipa-ca.auth.hahl.au.		3600	IN	A	172.16.16.20
 mc.hahl.au.			1	IN	A	117.120.9.109
 remote.hahl.au.			1	IN	A	117.120.9.108
 syd-bootstrap-01.ocp.hahl.au.	1	IN	A	172.16.17.15
-syd-cloud-01.apps.hahl.au.	1	IN	A	172.16.18.25
-syd-cloud-02.apps.hahl.au.	1	IN	A	172.16.18.26
 syd-desktop-01.vdi.hahl.au.	1	IN	A	172.16.19.40
 syd-dev-01.dmz.hahl.au.		1	IN	A	10.0.0.93
 syd-gluster-01.apps.hahl.au.	1	IN	A	172.16.18.20
@@ -52,21 +50,21 @@ syd-mc-01.dmz.hahl.au.		1	IN	A	10.0.0.15
 syd-proxy-01.dmz.hahl.au.	1	IN	A	10.0.0.20
 syd-proxy-02.dmz.hahl.au.	1	IN	A	10.0.0.21
 syd-proxy-vip.dmz.hahl.au.	1	IN	A	10.0.0.22
-syd-wg-01.ext.hahl.au.		1	IN	A	149.28.182.62
 syd-worker-01.ocp.hahl.au.	1	IN	A	172.16.17.31
 syd-worker-02.ocp.hahl.au.	1	IN	A	172.16.17.32
 syd-worker-03.ocp.hahl.au.	1	IN	A	172.16.17.32
+syd-vault-01.apps.hahl.au.	500	IN	A	172.16.18.25
 vpn.hahl.au.			1	IN	A	117.120.9.108
-syd-tor-01.ext.hahl.au.		500	IN	A	117.120.9.107
-syd-tor-02.ext.hahl.au.		500	IN	A	149.28.160.55
+
+ntp01.hahl.au.		500	IN	A	10.0.0.20
+ntp02.hahl.au.		500	IN	A	10.0.0.21
 
 ;; CNAME Records
 api-int.ocp.hahl.au.	1	IN	CNAME	syd-lb-vip.dmz.hahl.au.
 nfs.hahl.au.		1	IN	CNAME	syd-gluster-vip.apps.hahl.au.
-ntp01.hahl.au.		1	IN	CNAME	syd-proxy-01.dmz.hahl.au.
-ntp02.hahl.au.		1	IN	CNAME	syd-proxy-02.dmz.hahl.au.
 proxy.dmz.hahl.au.	1	IN	CNAME	syd-proxy-vip.dmz.hahl.au.
 proxy.hahl.au.		1	IN	CNAME	syd-proxy-vip.dmz.hahl.au.
+vault.hahl.au	        1	IN	CNAME	syd-lb-vip.ext.hahl.au.
 
 ;; MX Records
 hahl.au.	1	IN	MX	56 route3.mx.cloudflare.net.

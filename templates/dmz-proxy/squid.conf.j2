@@ -4,7 +4,7 @@
 visible_hostname {{inventory_hostname}}
 
 ## add in basic authentication
-auth_param basic program /usr/lib64/squid/basic_ldap_auth -b cn=users,cn=accounts,dc=hahl,dc=id,dc=au -f uid=%s ldap.auth.hahl.au
+auth_param basic program /usr/lib64/squid/basic_ldap_auth -b cn=users,cn=accounts,dc=hahl,dc=au -f uid=%s syd-ipa-01.auth.hahl.au
 auth_param basic children 50
 auth_param basic realm HAHL Proxy Services
 auth_param basic credentialsttl 5 hours
@@ -13,12 +13,13 @@ auth_param basic credentialsttl 5 hours
 acl localnet src 172.16.0.0/16 # not-dmz
 
 # Safe IP Addresses
-acl externalnet dst 104.26.3.128 # ocp infra ingress.
+acl externalnet dst 27.50.95.203 # ocp infra ingress.
 
 acl SSL_ports port 443
 acl Safe_ports port 80      # http
 acl Safe_ports port 443     # https
 acl Safe_ports port 2222    # gitea ssh
+acl Safe_ports port 6443    # kubernetes api
 acl CONNECT method CONNECT
 
 ## proxy auth

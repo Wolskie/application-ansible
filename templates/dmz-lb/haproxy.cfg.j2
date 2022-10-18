@@ -74,11 +74,11 @@ frontend fe_http
     bind *:80
     mode http
 
-    acl app_cloud         hdr(host) -i cloud.hahl.au 
+    acl app_vault         hdr(host) -i vault.hahl.au 
     acl app_haproxy       hdr(host) -i syd-lb-vip.ext.hahl.au
     acl app_ocp_ingress   hdr(host) -m end .apps.ocp.hahl.au
 
-    redirect scheme https code 301 if app_cloud
+    redirect scheme https code 301 if app_vault
 
     # Default backend to 
     use_backend be_http_haproxy       if app_haproxy
@@ -94,17 +94,16 @@ frontend fe_https
     tcp-request inspect-delay 5s
     tcp-request content accept if { req_ssl_hello_type 1 }
 
-    use_backend be_https_cloud        if { req_ssl_sni -i cloud.hahl.au }
+    use_backend be_https_vault        if { req_ssl_sni -i vault.hahl.au }
     use_backend be_https_ocp_ingress  if { req_ssl_sni -m end .apps.ocp.hahl.au }
 
 ##
-# cloud.hahl.id.au
+# vault.hahl.au
 #
-backend be_https_cloud
+backend be_https_vault
     mode tcp
     balance roundrobin
-    server syd-cloud-01 syd-cloud-01.apps.hahl.au:443 check port
-    server syd-cloud-02 syd-cloud-01.apps.hahl.au:443 check backup
+    server syd-vault-01 syd-vault-01.apps.hahl.au:443
 
 ##
 # *.apps.ocp.hahl.id.au
