@@ -84,6 +84,8 @@ frontend fe_http
     use_backend be_http_haproxy       if app_haproxy
     use_backend be_http_ocp_ingress   if app_ocp_ingress 
 
+    default_backend be_http_ocp_ingress
+
 ##
 # HTTPS Traffic
 #
@@ -96,6 +98,8 @@ frontend fe_https
 
     use_backend be_https_vault        if { req_ssl_sni -i vault.hahl.au }
     use_backend be_https_ocp_ingress  if { req_ssl_sni -m end .apps.ocp.hahl.au }
+
+    default_backend be_https_ocp_ingress
 
 ##
 # vault.hahl.au
