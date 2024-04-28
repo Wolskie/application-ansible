@@ -7,22 +7,42 @@ global_defs {
   enable_script_security
 }
 
-vrrp_script chk_app {
-  script "/usr/libexec/keepalived/app-check"
+vrrp_script chk_lb {
+  script "/usr/libexec/keepalived/lb-check"
   interval 2
   weight 2
 }
 
-vrrp_instance VI_1 {
-  interface {{keepalived_interface | default(eth0)}}
+
+vrrp_script chk_squid {
+  script "/usr/libexec/keepalived/squid-check"
+  interval 2
+  weight 2
+}
+
+vrrp_instance VI_LB {
+  interface {{keepalived_interface_lb | default("eth0")}}
   state MASTER
   virtual_router_id 63
   priority 100
   virtual_ipaddress {
-    {{keepalived_vip}}
+    {{keepalived_vip_lb}}
   }
   track_script {
-    chk_app
+    chk_lb
+  }
+}
+
+vrrp_instance VI_SQUID {
+  interface {{keepalived_interface_squid | default("eth0")}}
+  state MASTER
+  virtual_router_id 64
+  priority 100
+  virtual_ipaddress {
+    {{keepalived_vip_squid}}
+  }
+  track_script {
+    chk_squid
   }
 }
 

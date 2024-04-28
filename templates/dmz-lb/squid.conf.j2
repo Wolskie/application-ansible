@@ -10,10 +10,8 @@ auth_param basic realm HAHL Proxy Services
 auth_param basic credentialsttl 5 hours
 
 # Ask for passwords on networks not listed here
-acl localnet src 10.120.0.0/16 # not-dmz
+acl localnet src 10.120.0.0/16
 
-# Safe IP Addresses
-acl externalnet dst 27.50.95.203 # ocp infra ingress.
 
 acl SSL_ports port 443
 acl Safe_ports port 80      # http
@@ -27,8 +25,6 @@ acl ldap_users proxy_auth REQUIRED
 
 ## require authentication
 http_access allow localnet
-http_access allow externalnet
-http_access allow ldap_users
 
 #  Only allow cachemgr access from localhost
 http_access allow manager localhost

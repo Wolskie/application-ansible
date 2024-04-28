@@ -1,10 +1,9 @@
 ---
 - hosts: dmz-lb
   vars:
-    keepalived_vip: 10.0.0.40
-    keepalived_interface: eth0
+    keepalived_vip_lb: 10.120.1.5
+    keepalived_vip_squid: 10.120.1.6
   handlers:
-
     # restart keepalived
     - name: restart keepalived
       service:
@@ -12,9 +11,15 @@
         enabled: true
         state: restarted
 
-    - name: restart haproxy
+    - name: restart squid
       service:
-        name: haproxy
+        name: caddy
+        enabled: true
+        state: restarted
+
+    - name: restart caddy
+      service:
+        name: caddy
         enabled: true
         state: restarted
 
@@ -26,12 +31,19 @@
       hostname:
         name: "{{ inventory_hostname }}"
 
+    - name: dmz-lb | install epel-release
+      package:
+        name:
+          - epel-release
+        state: latest
+
     - name: dmz-lb | install software
       package:
         name:
           - keepalived
           - ansible-core
-          - haproxy
+          - squid
+          - caddy
         state: latest
 
     - name: dmz-lb | allow haproxy connct any
@@ -43,10 +55,17 @@
     - name: dmz-lb | allow haproxy set file limit
       command: "setsebool -P httpd_setrlimit 1"
 
-    - name: deploy keepalived check scripts
+    - name: deploy keepalived lb check scripts
       ansible.builtin.template:
-        src: ../templates/dmz-lb/app-check.j2
-        dest: /usr/libexec/keepalived/app-check
+        src: ../templates/dmz-lb/lb-check.j2
+        dest: /usr/libexec/keepalived/lb-check
+        mode: 0775
+      notify: restart keepalived
+
+    - name: deploy keepalived squid check scripts
+      ansible.builtin.template:
+        src: ../templates/dmz-lb/squid-check.j2
+        dest: /usr/libexec/keepalived/squid-check
         mode: 0775
       notify: restart keepalived
 
@@ -61,11 +80,11 @@
         src: ../templates/dmz-lb/10-keepalived.conf.j2
         dest: /etc/sysctl.d/10-keepalived.conf
 
-    - name: dmz-lb | deploy haproxy config
+    - name: dmz-lb | deploy caddy config
       ansible.builtin.template:
-        src: ../templates/dmz-lb/haproxy.cfg.j2
-        dest: /etc/haproxy/haproxy.cfg
-      notify: restart haproxy
+        src: ../templates/dmz-lb/Caddyfile.j2
+        dest: /etc/caddy/Caddyfile
+      notify: restart caddy
 
     - name: dmz-lb | ensure services started
       service:
@@ -74,5 +93,5 @@
         enabled: true
       with_items:
         - keepalived
-        - haproxy
-        - chronyd
+        - caddy
+        - squid
