@@ -1,0 +1,36 @@
+---
+- hosts: ipacluster
+  tasks:
+  - name: Set hostname
+    hostname:
+     name: "{{ inventory_hostname }}"
+
+- name: Install IPA servers
+  hosts: ipaserver
+  become: true
+  vars_files:
+  - secrets.yaml
+
+  roles:
+  - role: freeipa.ansible_freeipa.ipaserver
+    state: present
+
+- name: Install IPA replicas
+  hosts: ipareplicas
+  become: true
+  vars_files:
+  - secrets.yaml
+
+  roles:
+  - role: freeipa.ansible_freeipa.ipareplica
+    state: present
+
+- name: Install IPA clients
+  hosts: ipaclients
+  become: true
+  vars_files:
+  - secrets.yaml
+
+  roles:
+  - role: freeipa.ansible_freeipa.ipaclient
+    state: present

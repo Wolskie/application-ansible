@@ -3,6 +3,7 @@ collections:
 - name: community.general
 - name: ansible.posix
 - name: containers.podman
+- name: freeipa.ansible_freeipa
 
 roles:
 - name: "patrickjahns.promtail"
